@@ -1,0 +1,6 @@
+# dependencies
+/node_modules
+/session_data
+/.wwebjs_cache
+
+.env
