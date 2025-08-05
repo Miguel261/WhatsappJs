@@ -37,7 +37,7 @@ const welcome = async (client) => {
         if (texto === 'MENU' || texto === 'MENÚ') {
             await sendDelayedReply(client, message,
                 `Hola, Bienvenido al ChatBotSiESABI 🤖\n\n` +
-                `*Sigue estas instrucciones:*\n` +
+                `*Sigue estas indicaciones:*\n` +
                 `🅰️ Escribe el número de la opción que necesitas\n` +
                 `🅱️ Horario: Lunes a Viernes (9:30 AM - 7:00 PM) ⏳\n\n` +
                 `*Menú de opciones:*\n` +

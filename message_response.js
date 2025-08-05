@@ -12,7 +12,7 @@ const sendDelayedReply = async (client, msg, text, delayMs = 0) => {
 
         await client.sendMessage(msg.from, text);
     } catch (error) {
-        // console.error('Error de serialize (Si manda los mensajes) un error interno en WhatsAppJs');
+        console.error('Error al enviar mensaje:', error);
     }
 };
 
@@ -37,7 +37,7 @@ const sendDelayedImage = async (client, msg, imageOptions, delayMs = 0) => {
         await client.sendMessage(msg.from, media, { caption: imageOptions.caption || '' });
 
     } catch (error) {
-        // console.error('Error al enviar imagen:', error);
+        console.error('Error al enviar imagen:', error);
     }
 };
 
