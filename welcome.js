@@ -9,6 +9,7 @@ const { Laboral } = require('./laboral');
 const { CoursesKey } = require('./key_course');
 const { VerifyError } = require('./verify_error');
 const { Moodle } = require('./perfil_moodle');
+const { AccountMoodle } = require('./moodle account');
 
 const welcome = async (client) => {
     client.on('message_create', async (message) => {
@@ -32,6 +33,7 @@ const welcome = async (client) => {
         if (context.flow === 'confirm_email_change') return confirmChangeEmail(client, message);
         if (context.flow === 'confirm_pass_change') return confirmChangePassword(client, message);
         if (context.flow === 'esperando_curp_searh_email') return SearchEmail(client, message);
+        if (context.flow === 'esperando_curp_account_moodle') return AccountMoodle(client, message);
 
         // Texto MENÚ
         if (texto === 'MENU' || texto === 'MENÚ') {
@@ -86,11 +88,7 @@ const welcome = async (client) => {
         // ✅ Si ya se envió el menú, procesar opciones
         switch (texto) {
             case '1': return QuestionEmailFisrt(client, message);
-            case '2':
-                await sendDelayedReply(client, message, "Opción 2 no está disponible actualmente.", 1500);
-                await sendDelayedReply(client, message, "Si necesitas ayuda, selecciona el número de la opción que necesites.", 1500);
-                await sendDelayedReply(client, message, "Recuerda que este es un asistente automático, por lo que no va a responder a preguntas o comentarios.", 1500);
-                return;
+            case '2': return AccountMoodle(client, message)
             case '3': return SearchEmail(client, message);
             case '4': return CoursesProblem(client, message);
             case '5': return Personal(client, message);
