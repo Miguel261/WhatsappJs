@@ -37,9 +37,7 @@ const welcome = async (client) => {
         if (texto === 'MENU' || texto === 'MENÚ') {
             await sendDelayedReply(client, message,
                 `Hola, Bienvenido al ChatBotSiESABI 🤖\n\n` +
-                `*Sigue estas indicaciones:*\n` +
-                `🅰️ Escribe el número de la opción que necesitas\n` +
-                `🅱️ Horario: Lunes a Viernes (9:30 AM - 7:00 PM) ⏳\n\n` +
+                `❇️ Escribe el número de la opción que necesitas\n\n` +
                 `*Menú de opciones:*\n` +
                 `✅ 1. Credenciales no coinciden (Cambio de correo/contraseña)\n` +
                 `✅ 2. Inicio de sesión sin acceso a cursos (no disponible)\n` +
@@ -65,9 +63,7 @@ const welcome = async (client) => {
 
             await sendDelayedReply(client, message,
                 `Hola, Bienvenido al ChatBotSiESABI 🤖\n\n` +
-                `*Sigue estas indicaciones:*\n` +
-                `🅰️ Escribe el número de la opción que necesitas\n` +
-                `🅱️ Horario: Lunes a Viernes (9:30 AM - 7:00 PM) ⏳\n\n` +
+                `❇️ Escribe el número de la opción que necesitas\n\n` +
                 `*Menú de opciones:*\n` +
                 `✅ 1. Credenciales no coinciden (Cambio de correo/contraseña)\n` +
                 `✅ 2. Inicio de sesión sin acceso a cursos (no disponible)\n` +
