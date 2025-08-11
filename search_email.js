@@ -90,7 +90,6 @@ const SearchEmail = async (client, msg) => {
                     'número registrado para este usuario. Por seguridad, no podemos otorgarte información', 1000);
                 await sendDelayedReply(client, msg, 'Si extraviaste tu número o cambiaste, envía un correo a siesabisoporte@imssbienestar.gob.mx\n' +
                     'Con los siguientes datos: *Nombre, Correo y CURP*', 2000);
-                await sendDelayedReply(client, msg, 'Con los siguientes datos: *Nombre, Correo y CURP*', 1000);
                 resetUserContext(msg.from);
                 return;
             }

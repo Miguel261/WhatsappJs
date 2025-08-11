@@ -1,6 +1,8 @@
 const { Client, LocalAuth } = require('whatsapp-web.js');
 const puppeteer = require('puppeteer');
 const { welcome } = require('./welcome');
+const cron = require('node-cron'); // 📌 Importamos cron
+const { resetAllUsersContext } = require('./users'); // 📌 Importamos el reset global
 
 const client = new Client({
     authStrategy: new LocalAuth({
@@ -22,10 +24,12 @@ client.on('qr', qr => {
 
 client.on('ready', () => {
     console.log('✅ Bot listo para recibir mensajes');
+
+    cron.schedule('0 0 * * *', () => {
+        resetAllUsersContext();
+        console.log('🕛 Limpieza automática ejecutada a medianoche');
+    });
 });
 
-
 welcome(client);
-
-
 client.initialize();

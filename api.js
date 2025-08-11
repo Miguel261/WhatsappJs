@@ -15,7 +15,6 @@ const consultaCurpApi = async (data) => {
             }
         );
         const userDatos = response.data;
-        //console.log(userDatos.phone);
         return userDatos;
 
     } catch (error) {

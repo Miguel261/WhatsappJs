@@ -84,7 +84,7 @@ const welcome = async (client) => {
                 0
             );
 
-            return; // ⛔ Detén aquí para evitar que pase al switch
+            return;
         }
 
         // ✅ Si ya se envió el menú, procesar opciones

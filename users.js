@@ -1,3 +1,4 @@
+// users.js
 const userContext = {};
 
 function getUserContext(userId) {
@@ -20,7 +21,7 @@ function clearUserContext(userId) {
 
 function resetUserContext(userId) {
     const current = getUserContext(userId);
-    const preserved = { menuSent: current.menuSent === true }; // preserva si ya estaba en true
+    const preserved = { menuSent: current.menuSent === true };
 
     userContext[userId] = {
         ...preserved,
@@ -33,9 +34,17 @@ function resetUserContext(userId) {
     };
 }
 
+function resetAllUsersContext() {
+    for (let userId in userContext) {
+        delete userContext[userId];
+    }
+    console.log('🧹 userContext limpiado completamente');
+}
+
 module.exports = {
     getUserContext,
     setUserContext,
     clearUserContext,
-    resetUserContext
+    resetUserContext,
+    resetAllUsersContext
 };

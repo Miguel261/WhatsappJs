@@ -205,7 +205,7 @@ const QuestionEmail = async (client, msg) => {
 
     if (!userObject.flow) {
         await sendDelayedReply(client, msg, 'Por favor, proporcione el nuevo correo electrónico que desea registrar, ' +
-            'asegurándose de que esté escrito completamente en minúsculas, escriba cancelar si se equivoco. ¡Gracias!', 0);
+            'asegurándose de que esté escrito completamente en minúsculas, escriba cancelar si hubo alguna equivocación. ¡Gracias!', 0);
         setUserContext(msg.from, { flow: 'ask_email', intentos: 0 });
         return;
     }
@@ -237,7 +237,7 @@ const QuestionEmail = async (client, msg) => {
             }
 
             setUserContext(msg.from, { intentos, flow: 'ask_email' });
-            await sendDelayedReply(client, msg, `⚠️ Correo no válido. Por favor escriba nuevamente su correo:`, 1000);
+            await sendDelayedReply(client, msg, `⚠️ Correo no válido, escriba cancelar si hubo alguna equivocación. Por favor escriba nuevamente su correo:`, 1000);
             return;
         } else {
             if (newEmail === emailOld) {
@@ -255,7 +255,7 @@ const QuestionEmail = async (client, msg) => {
                 }
 
                 setUserContext(msg.from, { intentos, flow: 'ask_email' });
-                await sendDelayedReply(client, msg, `⚠️ El correo es el mismo al que esta registrado. Por favor escriba nuevamente su correo:`, 1000);
+                await sendDelayedReply(client, msg, `⚠️ El correo es el mismo al que esta registrado, escriba cancelar si hubo alguna equivocación. Por favor escriba nuevamente su correo:`, 1000);
                 return;
             }
             else {
@@ -312,7 +312,7 @@ const confirmChangeEmail = async (client, msg) => {
                 }
 
                 if (res == 409) {
-                    await sendDelayedReply(client, msg, "El correo electrónico proporcionado ya está asociado a otra cuenta. Por favor, intente con uno diferente.", 1000);
+                    await sendDelayedReply(client, msg, "El correo electrónico proporcionado ya está asociado a otra cuenta, escriba cancelar si hubo alguna equivocación. Por favor, intente con un correo diferente:", 1000);
                     setUserContext(msg.from, { flow: null, intentos: 0 });
                     return QuestionEmail(client, msg);
                 }
