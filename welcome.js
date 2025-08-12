@@ -9,7 +9,7 @@ const { Laboral } = require('./laboral');
 const { CoursesKey } = require('./key_course');
 const { VerifyError } = require('./verify_error');
 const { Moodle } = require('./perfil_moodle');
-const { AccountMoodle } = require('./moodle account');
+const { AccountMoodle } = require('./moodle_account');
 
 const welcome = async (client) => {
     client.on('message_create', async (message) => {
