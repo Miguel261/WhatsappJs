@@ -1,5 +1,5 @@
 const { sendDelayedReply } = require('./message_response');
-const { consultaCurpApi } = require('./api');
+const { consultaCurpApi, funtionApi } = require('./api');
 const { getUserContext, setUserContext, resetUserContext } = require('./users');
 
 const AccountMoodle = async (client, msg) => {
