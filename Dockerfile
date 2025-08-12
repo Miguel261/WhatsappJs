@@ -49,7 +49,7 @@ COPY search_email.js .
 COPY users.js .
 COPY verify_error.js .
 COPY welcome.js .
-COPY moodle_account .
+COPY moodle_account.js .
 
 CMD ["node", "main.js"]
 
