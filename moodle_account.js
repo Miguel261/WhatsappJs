@@ -67,7 +67,7 @@ const AccountMoodle = async (client, msg) => {
             if (numero === userData.phone) {
                 await sendDelayedReply(client, msg, '⚠️ Consultando información', 500);
 
-                const res = await funtionApi(userObject.userData.user, 2);
+                const res = await funtionApi(userData.user, 2);
 
                 if (!res) {
                     await sendDelayedReply(client, msg, "⚠️ Hay un problema de conexión con el servidor. Intenta más tarde.", 1000);
