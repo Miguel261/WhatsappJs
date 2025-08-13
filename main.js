@@ -24,11 +24,11 @@ client.on('qr', qr => {
 
 client.on('ready', () => {
     console.log('✅ Bot listo para recibir mensajes');
+});
 
-    cron.schedule('0 0 * * *', () => {
-        resetAllUsersContext();
-        console.log('🕛 Limpieza automática ejecutada a medianoche');
-    });
+cron.schedule('0 0 * * *', () => {
+    resetAllUsersContext();
+    console.log('🕛 Limpieza automática ejecutada a medianoche');
 });
 
 welcome(client);
