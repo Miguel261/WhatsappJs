@@ -28,7 +28,9 @@ client.on('ready', () => {
 
 cron.schedule('0 0 * * *', () => {
     resetAllUsersContext();
-    console.log('🕛 Limpieza automática ejecutada a medianoche');
+    console.log('🕛 Limpieza automática ejecutada');
+}, {
+    timezone: "America/Mexico_City"
 });
 
 welcome(client);

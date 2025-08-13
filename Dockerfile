@@ -24,6 +24,9 @@ RUN apt-get update && apt-get install -y \
     gnupg \
     && rm -rf /var/lib/apt/lists/*
 
+# Configurar zona horaria
+ENV TZ=America/Mexico_City
+
 WORKDIR /app
 
 # Copiar e instalar dependencias de Node
