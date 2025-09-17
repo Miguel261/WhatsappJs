@@ -14,7 +14,7 @@ const SearchEmail = async (client, msg) => {
 
     if (!userObject.curpRequested) {
         await sendDelayedReply(client, msg, 'Por motivos de calidad y seguridad de la información, le informamos que esta conversación ' +
-            'será almacenada. Su información será tratada de acuerdo con nuestras políticas de privacidad y únicamente se utilizará' +
+            'será almacenada. Su información será tratada de acuerdo con nuestras políticas de privacidad y únicamente se utilizará ' +
             'para mejorar nuestros servicios y garantizar la seguridad de los datos.', 1500);
         await sendDelayedReply(client, msg, `Para verificar su información, escriba su *CURP*:`, 600);
 
