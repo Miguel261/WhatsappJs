@@ -82,8 +82,6 @@ const SearchEmail = async (client, msg) => {
                 await sendDelayedReply(client, msg, `Atentamente....`, 1500);
                 await sendDelayedReply(client, msg, `Tu equipo SiESABI 🤓`, 1500);
                 return;
-
-
             }
             else {
                 await sendDelayedReply(client, msg, '❌ El número con el que estás enviando mensajes no coincide con el ' +

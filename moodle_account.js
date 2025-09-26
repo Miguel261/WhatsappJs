@@ -100,7 +100,6 @@ const AccountMoodle = async (client, msg) => {
                     resetUserContext(msg.from);
                     return;
                 }
-
             }
             else {
                 await sendDelayedReply(client, msg, '❌ El número con el que estás enviando mensajes no coincide con el ' +

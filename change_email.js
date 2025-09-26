@@ -281,7 +281,6 @@ const confirmChangeEmail = async (client, msg) => {
         const minutes = Math.ceil((userObject.blockedUntil - now) / (60 * 1000));
         await sendDelayedReply(client, msg, `⛔ Has excedido el número de intentos. Intenta nuevamente en ${minutes} minutos.`, 1000);
         return;
-
     }
 
     if (!userObject.flow) {
@@ -338,7 +337,6 @@ const confirmChangeEmail = async (client, msg) => {
                 });
 
                 return confirmChangePassword(client, msg);
-
             }
             if (response === 'NO') {
                 setUserContext(msg.from, {
