@@ -68,7 +68,7 @@ const welcome = async (client) => {
                 `❇️ Escribe el número de la opción que necesitas\n\n` +
                 `*Menú de opciones:*\n` +
                 `✅ 1. Credenciales no coinciden (Cambio de correo/contraseña)\n` +
-                `✅ 2. Inicio de sesión sin acceso a cursos\n` +
+                `✅ 2. Puedo iniciar sesión, pero no puedo acceder a los cursos\n` +
                 `✅ 3. Consulta de correo electrónico\n` +
                 `✅ 4. Problemas con avance de cursos\n` +
                 `✅ 5. Actualización de datos personales\n` +
