@@ -15,6 +15,8 @@ const welcome = async (client) => {
     client.on('message_create', async (message) => {
         if (message.fromMe || message.from === 'status@broadcast' || await message.isGroupMsg) return;
 
+        if (message.from === '15517868414@c.us') return;
+
         const userObjetc = message.from;
         const texto = message.body.toUpperCase().trim();
 
