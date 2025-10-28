@@ -46,7 +46,7 @@ COPY key_course.js .
 COPY laboral.js .
 COPY main.js .
 COPY message_response.js .
-COPY perfil_moodle.js .
+COPY constancias.js .
 COPY personal.js .
 COPY search_email.js .
 COPY users.js .
