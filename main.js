@@ -1,7 +1,7 @@
 const { Client, LocalAuth } = require('whatsapp-web.js');
 const puppeteer = require('puppeteer');
 const { welcome } = require('./welcome');
-const cron = require('node-cron'); 
+const cron = require('node-cron');
 const { resetAllUsersContext } = require('./users');
 
 const client = new Client({

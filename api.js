@@ -82,7 +82,6 @@ const funtionApi = async (data, option) => {
                 else {
                     return null;
                 }
-                
             }
         }
 

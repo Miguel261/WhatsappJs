@@ -8,13 +8,14 @@ const { Personal } = require('./personal');
 const { Laboral } = require('./laboral');
 const { CoursesKey } = require('./key_course');
 const { VerifyError } = require('./verify_error');
-const { Moodle } = require('./perfil_moodle');
+const { Constancias } = require('./constancias');
 const { AccountMoodle } = require('./moodle_account');
 
 const welcome = async (client) => {
     client.on('message_create', async (message) => {
         if (message.fromMe || message.from === 'status@broadcast' || await message.isGroupMsg) return;
-
+        
+        // Ignorar numeros (IA de WhatsAPP)
         if (message.from === '15517868414@c.us') return;
 
         const userObjetc = message.from;
@@ -51,7 +52,7 @@ const welcome = async (client) => {
                 `✅ 6. Actualización de datos laborales\n` +
                 `✅ 7. Curso con clave\n` +
                 `✅ 8. Error en verificación de correo\n` +
-                `✅ 9. "No puedo editar mi perfil"\n\n` +
+                `✅ 9. "Descargar la constancia de un curso"\n\n` +
                 `📄 *Aviso de privacidad:* https://educacion.imssbienestar.gob.mx\n` +
                 `*Nota:* Si el bot no responde, escribe *MENU* nuevamente\n` +
                 `⚠️ *ASISTENTE AUTOMÁTICO* - No atiende llamadas/comentarios`,
@@ -77,7 +78,7 @@ const welcome = async (client) => {
                 `✅ 6. Actualización de datos laborales\n` +
                 `✅ 7. Curso con clave\n` +
                 `✅ 8. Error en verificación de correo\n` +
-                `✅ 9. "No puedo editar mi perfil"\n\n` +
+                `✅ 9. "Descargar la constancia de un curso"\n\n` +
                 `📄 *Aviso de privacidad:* https://educacion.imssbienestar.gob.mx\n` +
                 `*Nota:* Si el bot no responde, escribe *MENU* nuevamente\n` +
                 `⚠️ *ASISTENTE AUTOMÁTICO* - No atiende llamadas/comentarios`,
@@ -97,7 +98,7 @@ const welcome = async (client) => {
             case '6': return Laboral(client, message);
             case '7': return CoursesKey(client, message);
             case '8': return VerifyError(client, message);
-            case '9': return Moodle(client, message);
+            case '9': return Constancias(client, message);
             default:
                 await sendDelayedReply(client, message,
                     `⚠️ *Opción no válida.*\n\n` +
