@@ -61,7 +61,7 @@ const QuestionEmailFisrt = async (client, msg) => {
         }
 
 
-        if (userData.user){
+        if (userData.user) {
 
             if (!userData.phone) {
                 setUserContext(msg.from, {
@@ -79,7 +79,7 @@ const QuestionEmailFisrt = async (client, msg) => {
                 return handleEmailFlow(client, msg);
             }
 
-            if (userData.phone){
+            if (userData.phone) {
                 const digits = msg.from.replace(/\D/g, '');
                 const numero = digits.slice(-10);
 
@@ -100,7 +100,7 @@ const QuestionEmailFisrt = async (client, msg) => {
                 } else {
                     await sendDelayedReply(client, msg, '❌ El número con el que estás enviando mensajes no coincide con el ' +
                         'número registrado para este usuario. Por seguridad, no podemos otorgarte información', 1000);
-                    await sendDelayedReply(client, msg, 'Si extraviaste tu número o cambiaste, envía un correo a siesabisoporte@imssbienestar.gob.mx\n' + 
+                    await sendDelayedReply(client, msg, 'Si extraviaste tu número o cambiaste, envía un correo a siesabisoporte@imssbienestar.gob.mx\n' +
                         'Con los siguientes datos: *Nombre, Correo y CURP*', 2000);
                     resetUserContext(msg.from);
                     return;
@@ -108,7 +108,7 @@ const QuestionEmailFisrt = async (client, msg) => {
             }
 
         }
-        else{
+        else {
             await sendDelayedReply(client, msg, '❌ Ocurrio un error intente de nuevo', 1000);
             resetUserContext(msg.from);
             return;
@@ -213,7 +213,7 @@ const QuestionEmail = async (client, msg) => {
     const emailOld = userObject.userData.user.email;
 
     if (userObject.flow == 'ask_email') {
-        if (newEmail === 'cancelar'){
+        if (newEmail === 'cancelar') {
             await sendDelayedReply(client, msg, `Si quieres ver el menú escribe la palabra: *menu*`, 1500);
             await sendDelayedReply(client, msg, `Agradecemos que utilices nuestro servicio.`, 1500);
             await sendDelayedReply(client, msg, `Atentamente....`, 1500);
@@ -265,7 +265,7 @@ const QuestionEmail = async (client, msg) => {
                     intentos: 0,
                     pendingEmail: newEmail
                 });
-            
+
                 return confirmChangeEmail(client, msg);
             }
         }
@@ -296,7 +296,7 @@ const confirmChangeEmail = async (client, msg) => {
                 const newEmail = userObject.pendingEmail;
                 const res = await updateEmail(userObject.userData.user, newEmail);
 
-                if(!res){
+                if (!res) {
                     await sendDelayedReply(client, msg, "⚠️ Hay un problema de conexión con el servidor. Intenta más tarde.", 1000);
                     setUserContext(msg.from, { flow: null, intentos: 0 });
                     return;
@@ -321,7 +321,7 @@ const confirmChangeEmail = async (client, msg) => {
                 await sendDelayedReply(client, msg, "Tu correo a sido actualizado ✅", 1000);
                 await sendDelayedReply(client, msg, `Tu nuevo corrreo es: ${res}`, 1500);
 
-               
+
 
                 setUserContext(msg.from, {
                     ...userObject,
@@ -353,7 +353,7 @@ const confirmChangeEmail = async (client, msg) => {
                 await sendDelayedReply(client, msg, "https://educacion.imssbienestar.gob.mx/", 1500);
                 await sendDelayedReply(client, msg, "Hasta pronto, Tu equipo SiESABI te desea excelente día 🤓", 1500);
                 resetUserContext(msg.from);
-                
+
                 return;
             }
         } else {
