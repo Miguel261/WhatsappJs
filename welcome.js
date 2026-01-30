@@ -55,6 +55,8 @@ const welcome = async (client) => {
                 `✅ 9. "Descargar la constancia de un curso"\n\n` +
                 `📄 *Aviso de privacidad:* https://educacion.imssbienestar.gob.mx\n` +
                 `*Nota:* Si el bot no responde, escribe *MENU* nuevamente\n` +
+                `AVISO ⚠️:
+Actualmente experimentamos problemas de conexión con nuestro servicio automático. Nuestro equipo de desarrollo ya está trabajando en una solución y está implementando alternativas para normalizar el servicio lo antes posible.\n` +
                 `⚠️ *ASISTENTE AUTOMÁTICO* - No atiende llamadas/comentarios`,
                 0
             );
@@ -81,6 +83,8 @@ const welcome = async (client) => {
                 `✅ 9. "Descargar la constancia de un curso"\n\n` +
                 `📄 *Aviso de privacidad:* https://educacion.imssbienestar.gob.mx\n` +
                 `*Nota:* Si el bot no responde, escribe *MENU* nuevamente\n` +
+                `AVISO ⚠️:
+Actualmente experimentamos problemas de conexión con nuestro servicio automático. Nuestro equipo de desarrollo ya está trabajando en una solución y está implementando alternativas para normalizar el servicio lo antes posible.\n` +
                 `⚠️ *ASISTENTE AUTOMÁTICO* - No atiende llamadas/comentarios`,
                 0
             );

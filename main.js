@@ -5,15 +5,19 @@ const cron = require('node-cron');
 const { resetAllUsersContext } = require('./users');
 
 const client = new Client({
-    authStrategy: new LocalAuth({
-        dataPath: './session_data'
-    }),
+    authStrategy: new LocalAuth(), 
     puppeteer: {
         headless: true,
         args: [
             '--no-sandbox',
-            '--disable-setuid-sandbox'
-        ]
+            '--disable-setuid-sandbox',
+            '--disable-extensions'
+        ],
+    },
+
+    webVersionCache: {
+        type: 'remote',
+        remotePath: 'https://raw.githubusercontent.com/wppconnect-team/wa-version-utils/main/versions/2.2412.54.json',
     }
 });
 
