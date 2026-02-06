@@ -80,10 +80,12 @@ const QuestionEmailFisrt = async (client, msg) => {
             }
 
             if (userData.phone) {
-                const digits = msg.from.replace(/\D/g, '');
+                const contact = await msg.getContact();
+                const digits = contact.number.replace(/\D/g, '');
                 const numero = digits.slice(-10);
+                const numeroBD = String(userData.phone).replace(/\D/g, '').slice(-10);
 
-                if (numero === userData.phone) {
+                if (numero === numeroBD) {
                     setUserContext(msg.from, {
                         ...userObject,
                         curp,
