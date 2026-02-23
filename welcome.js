@@ -21,7 +21,7 @@ const welcome = async (client) => {
         const userObjetc = message.from;
         const texto = message.body.toUpperCase().trim();
 
-        const context = getUserContext(userObjetc);
+        const context = getUserContext(message.getContact());
 
         // ✅ Evitar procesar el mismo mensaje más de una vez
         if (context.lastMessageId === message.id) {
