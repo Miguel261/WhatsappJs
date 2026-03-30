@@ -1,38 +1,53 @@
 const { sendDelayedReply, sendDelayedImage } = require('./message_response');
+const { consultarIA } = require('./ia_service');
 const path = require('path');
 
 const Laboral = async (client, msg) => {
-    const imageLaboral= path.join(__dirname, 'images', 'datos_laborales.png');
+    // Definimos las rutas de las imágenes fijas
+    const imageLaboral = path.join(__dirname, 'images', 'datos_laborales.png');
     const pestanaLaboral = path.join(__dirname, 'images', 'pestaña_laborales.png');
 
-    await sendDelayedReply(client, msg, "🌟 *Actualización de Datos Laborales* 🌟\n\nPara mantener tu información actualizada en nuestro sistema, " +
-        "por favor sigue esta guía paso a paso:", 1000);
+    // 1. IA redacta la introducción y los primeros pasos técnicos
+    const introLaboral = await consultarIA(
+        "El usuario necesita actualizar sus datos laborales en SiESABI. " +
+        "Redacta una introducción breve y los pasos 1 y 2: " +
+        "1. Loguearse. 2. Buscar la sección 'Datos Laborales' y el icono de engrane ⚙️. " +
+        "Sé profesional y usa emojis de oficina.",
+        "Asistente SiESABI"
+    );
 
-    await sendDelayedReply(client, msg, "1️⃣ Accede a tu cuenta con tus credenciales actuales.", 1000);
+    // 2. IA redacta el caption para la primera imagen (engrane)
+    const captionEngrane = await consultarIA(
+        "Indica brevemente que deben presionar el icono de configuración ⚙️ en la sección laboral. Máximo 12 palabras.",
+        "Instrucción Técnica"
+    );
 
-    await sendDelayedReply(client, msg, "2️⃣ Una vez dentro, dirígete a la sección de 'Datos Laborales' y localiza el icono de configuración ⚙️", 1000);
+    // 3. IA redacta la explicación de la pestaña laboral y la importancia de la adscripción
+    const cierreLaboral = await consultarIA(
+        "Explica que en la nueva pestaña pueden actualizar su unidad, adscripción e información profesional. " +
+        "Menciona que es importante para el seguimiento administrativo. " +
+        "Termina invitando a escribir MENU. Sé muy conciso.",
+        "Soporte Administrativo"
+    );
 
+    // --- Ejecución de envíos con los tiempos controlados ---
+
+    // Introducción y primeros pasos
+    await sendDelayedReply(client, msg, introLaboral, 1000);
+
+    // Primera imagen (Sección laboral)
     await sendDelayedImage(client, msg, {
         url: imageLaboral,
-        caption: '3️⃣ Haz clic en el icono de engrane ⚙️ para abrir las opciones de configuración'
-    }, 1000);
+        caption: `3️⃣ ${captionEngrane}`
+    }, 1200);
 
+    // Segunda imagen (Pestaña de edición)
     await sendDelayedImage(client, msg, {
         url: pestanaLaboral,
-        caption: `4️⃣ Se abrirá una nueva sección donde podrás:\n\n• Actualizar tus datos laborales actuales\n• Verificar tu unidad/adscripción\n• Completar o 
-        modificar tu información profesional\n\n📌 *Importante*:\nMantener esta información actualizada nos permite:\n- Identificar correctamente tu unidad 
-        administrativa\n- Brindarte un mejor seguimiento laboral\n Por favor verifica que todos 
-        los datos sean precisos y estén completos.`
-    }, 1000);
-
-    await sendDelayedReply(client, msg, `Si quieres ver el menú escribe la palabra: *menu*`, 1500);
-    await sendDelayedReply(client, msg, `Agradecemos que utilices nuestro servicio.`, 1500);
-    await sendDelayedReply(client, msg, `Atentamente....`, 1500);
-    await sendDelayedReply(client, msg, `Tu equipo SiESABI 🤓`, 1500);
+        caption: `4️⃣ ${cierreLaboral}`
+    }, 1500);
 
     return;
 }
 
-module.exports = {
-    Laboral
-};
+module.exports = { Laboral };

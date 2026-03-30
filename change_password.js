@@ -1,99 +1,143 @@
 const { sendDelayedReply } = require('./message_response');
 const { funtionApi } = require('./api');
 const { getUserContext, setUserContext, resetUserContext } = require('./users');
+const { consultarIA } = require('./ia_service');
 
 const confirmChangePassword = async (client, msg) => {
     const userObject = getUserContext(msg.from);
-    const response = msg.body.toUpperCase().trim();
     const now = Date.now();
 
+    // 1. Verificación de bloqueo por intentos
     if (userObject.blockedUntil && userObject.blockedUntil > now) {
         const minutes = Math.ceil((userObject.blockedUntil - now) / (60 * 1000));
-        await sendDelayedReply(client, msg, `⛔ Has excedido el número de intentos. Intenta nuevamente en ${minutes} minutos.`, 1000);
+        const avisoBloqueo = await consultarIA(
+            `Dile al usuario que ha excedido los intentos y debe esperar ${minutes} minutos por seguridad. PROHIBIDO SALUDAR.`,
+            "Seguridad SiESABI"
+        );
+        await sendDelayedReply(client, msg, avisoBloqueo, 1000);
         return;
     }
 
+    // 2. Inicio del flujo: Preguntar si desea cambiar contraseña
     if (!userObject.flow) {
-        await sendDelayedReply(client, msg, '¿Desea cambiar su contraseña? Conteste con *SI* o *NO* para continuar, si desea terminar la conversación escriba *Cancelar*', 0);
-        setUserContext(msg.from, { flow: 'confirm_pass_change', intentos: 0 });
+        const preguntaIA = await consultarIA(
+            "Actúa como el asistente de seguridad de SiESABI. Pregunta si el usuario desea proceder con el cambio de su contraseña ahora mismo. " +
+            "REGLA OBLIGATORIA: Indica claramente que debe responder con un 'SÍ' para continuar o un 'NO' para declinar. " +
+            "REGLA DE SALUDO: NO SALUDES, ve directo a la pregunta de seguridad.",
+            "### FLUJO: INVITACION_PASSWORD"
+        );
+        await sendDelayedReply(client, msg, preguntaIA, 0);
+        setUserContext(msg.from, { ...userObject, flow: 'confirm_pass_change', intentos: 0 });
         return;
     }
 
+    // 3. Procesamiento de la respuesta
     if (userObject.flow === 'confirm_pass_change') {
-        if (['SI', 'NO', 'CANCELAR'].includes(response)) {
-            if (response === 'SI') {
-                const res = await funtionApi(userObject.userData.user, 1);
 
-                if (!res) {
-                    await sendDelayedReply(client, msg, "⚠️ Hay un problema de conexión con el servidor. Intenta más tarde.", 1000);
-                    setUserContext(msg.from, { flow: null, intentos: 0 });
-                    return;
-                }
+        // Normalización para evitar fallos de lectura
+        const userResponse = msg.body.toLowerCase()
+            .trim()
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "");
 
-                if (res == 500 || res == 404) {
-                    await sendDelayedReply(client, msg, "Hubo un error al realizar esta acción ❌", 1000);
-                    await sendDelayedReply(client, msg, "Contacte algún administrador, para que se pueda corregir este error, al correo: siesabisoporte@imssbienestar.gob.mx", 1000);
-                    await sendDelayedReply(client, msg, "Se lo agradeceríamos mucho, para trabajar en mejorar nuestro servicio, el equipo SiESABI Te agredece 🤓", 1000);
-                    setUserContext(msg.from, { flow: null, intentos: 0 });
-                    return;
-                }
+        if (userResponse === 'si' || userResponse === 's') {
+            const res = await funtionApi(userObject.userData.user, 1);
 
-                if (res.status == 200) {
-                    await sendDelayedReply(client, msg, "Tu contraseña a sido actualizada ✅", 1000);
-                    await sendDelayedReply(client, msg, "Para acceder a tu cuenta utilizarás los siguientes datos:", 1500);
-                    await sendDelayedReply(client, msg, `*Correo*: ${userObject.userData.user.email}\n\n`
-                        + `*Contraseña temporal*: ${res.data.password}`, 1000);
-
-                    await sendDelayedReply(client, msg, "Deberás actualizar tu contraseña, ingresando al apartado de ajustes una vez " +
-                        "que hayas iniciado sesión, siguiendo estos pasos:", 1500);
-                    await sendDelayedReply(client, msg, "1. Ve a la sección de Datos Personales y localiza el icono de configuración (⚙️)", 1500);
-                    await sendDelayedReply(client, msg, "2. Haz clic en el engrane (⚙️) para abrir el menú de ajustes.", 1500);
-                    await sendDelayedReply(client, msg, "3. Se desplegará una ventana con las opciones de configuración.", 1500);
-                    await sendDelayedReply(client, msg, '4. Busca la pregunta "¿Desea actualizar su contraseña?" y activa el interruptor.', 1500);
-                    await sendDelayedReply(client, msg, "5. Ingresa tu nueva contraseña y confírmala para guardar los cambios.", 1500);
-                    await sendDelayedReply(client, msg, "Para su conveniencia, le recomendamos copiar y pegar las credenciales que se le han " +
-                        "proporcionado para evitar errores al ingresarlas. Asimismo, le invitamos cordialmente a guardar esta información " +
-                        "en un lugar seguro, ya que será necesaria para acceder a su cuenta en el futuro.", 2500);
-                    await sendDelayedReply(client, msg, "Liga para iniciar sesión", 1500);
-                    await sendDelayedReply(client, msg, "https://educacion.imssbienestar.gob.mx/", 1500);
-                    await sendDelayedReply(client, msg, "Hasta pronto, Tu equipo SiESABI te desea excelente día 🤓", 1500);
-                    resetUserContext(msg.from);
-                    return;
-                }
-
+            if (!res) {
+                const errorConexion = await consultarIA("Explica que hay un problema de conexión con el servidor. PROHIBIDO SALUDAR.");
+                await sendDelayedReply(client, msg, errorConexion, 1000);
+                setUserContext(msg.from, { flow: null, intentos: 0 });
+                return;
             }
-            if (response === 'NO') {
-                await sendDelayedReply(client, msg, "Liga para iniciar sesión", 1500);
-                await sendDelayedReply(client, msg, "https://educacion.imssbienestar.gob.mx/", 1500);
-                await sendDelayedReply(client, msg, "Hasta pronto, Tu equipo SiESABI te desea excelente día 🤓", 1500);
+
+            if (res == 500 || res == 404) {
+                const errorTecnico = await consultarIA(
+                    "Error en el servidor al resetear contraseña. Contactar a siesabisoporte@imssbienestar.gob.mx. NO SALUDES.",
+                    "Error 404/500"
+                );
+                await sendDelayedReply(client, msg, errorTecnico, 1000);
+                setUserContext(msg.from, { flow: null, intentos: 0 });
+                return;
+            }
+
+            if (res.status == 200) {
+                const exitoIA = await consultarIA(
+                    `ACTÚA COMO UN SISTEMA DE ENTREGA DE DATOS SEGUROS.
+
+                    VALORES A ENTREGAR (OBLIGATORIO):
+                    Correo: ${userObject.userData.user.email}
+                    Contraseña Temporal: ${res.data.password}
+
+                    REGLAS DE FORMATO (ESTRICTAS):
+                    1. PROHIBIDO usar asteriscos (*), negritas o cualquier símbolo de formato.
+                    2. PROHIBIDO poner puntos (.) al final de la contraseña o del correo.
+                    3. Entrega los datos en líneas separadas, sin viñetas ni puntos de lista.
+                    4. PROHIBIDO SALUDAR.
+
+                    CONTENIDO:
+                    - Comienza con una frase muy corta de éxito (ej: Acceso listo o Datos generados).
+                    - Muestra el Correo y la Contraseña en su propia línea cada uno.
+                    - Termina con una instrucción breve: Por seguridad cambia tu clave al entrar
+                    - No uses etiquetas HTML.`,
+                    "### FLUJO: ENTREGA_DATOS_LIMPIOS"
+                );
+
+                await sendDelayedReply(client, msg, exitoIA, 1000);
+
+                const instruccionesIA = await consultarIA(
+                    `Guía técnica breve: 
+                    1. Ve a **Datos Personales** (⚙️).
+                    2. Activa **¿Desea actualizar su contraseña?**.
+                    3. Guarda cambios.
+                    REGLAS: NO SALUDES, usa negritas, ve directo al paso 1.`,
+                    "### INSTRUCCIÓN: MANUAL_PASSWORD"
+                );
+
+                await sendDelayedReply(client, msg, instruccionesIA, 1500);
+
+                const despedida = await consultarIA(
+                    "Despedida breve con este link: https://educacion.imssbienestar.gob.mx/. PROHIBIDO SALUDAR.",
+                    "### CONTEXTO: CIERRE"
+                );
+                await sendDelayedReply(client, msg, despedida, 2000);
+
                 resetUserContext(msg.from);
                 return;
             }
 
-            if (response === 'CANCELAR') {
-                await sendDelayedReply(client, msg, "Liga para iniciar sesión", 1500);
-                await sendDelayedReply(client, msg, "https://educacion.imssbienestar.gob.mx/", 1500);
-                await sendDelayedReply(client, msg, "Hasta pronto, Tu equipo SiESABI te desea excelente día 🤓", 1500);
+        } else if (userResponse === 'no' || userResponse === 'cancelar' || userResponse === 'n') {
+            const cancelado = await consultarIA(
+                "El usuario canceló el cambio de contraseña. Confirma que no hay problema y su seguridad es primero. " +
+                "Incluye link: https://educacion.imssbienestar.gob.mx/ " +
+                "REGLA: NO SALUDES, sé muy breve.",
+                "### CONTEXTO: CIERRE_CANCELADO"
+            );
+            await sendDelayedReply(client, msg, cancelado, 1000);
+            resetUserContext(msg.from);
+            return;
 
-                resetUserContext(msg.from);
-                return;
-            }
         } else {
             const intentos = (userObject.intentos || 0) + 1;
 
             if (intentos >= 10) {
-                await sendDelayedReply(client, msg, "⛔ Has excedido el número de intentos. Intenta nuevamente en 10 minutos.", 1000);
                 setUserContext(msg.from, {
                     ...userObject,
                     blockedUntil: now + 10 * 60 * 1000,
                     intentos
                 });
+                const msgBloqueo = await consultarIA("Ha fallado demasiados intentos. Esperar 10 min. NO SALUDES.");
+                await sendDelayedReply(client, msg, msgBloqueo, 1000);
                 resetUserContext(msg.from);
                 return;
             }
 
-            setUserContext(msg.from, { intentos, flow: 'confirm_pass_change' });
-            await sendDelayedReply(client, msg, `⚠️ Respuesta no válida. Por favor escriba *SI*, *NO* o *CANCELAR*. Intento ${intentos}/10`, 1000);
+            setUserContext(msg.from, { ...userObject, intentos });
+            const errorResp = await consultarIA(
+                `Respuesta "${msg.body}" no válida. Pide responder "SÍ", "NO" o "CANCELAR". ` +
+                `REGLA: NO SALUDES, sé muy breve.`,
+                "### VALIDACIÓN: REINTENTO"
+            );
+            await sendDelayedReply(client, msg, `⚠️ Intento ${intentos}/10\n${errorResp}`, 1000);
             return;
         }
     }

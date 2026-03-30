@@ -1,18 +1,23 @@
 const { sendDelayedReply } = require('./message_response');
+const { consultarIA } = require('./ia_service');
 
 const CoursesKey = async (client, msg) => {
-    await sendDelayedReply(client, msg, "El curso se llevará a cabo de manera presencial, por lo que necesitarás una clave de inscripción para participar. ", 1500);
-    await sendDelayedReply(client, msg, "Si te han solicitado asistir a este curso, la información necesaria debe ser proporcionada " +
-        "por el personal encargado de la capacitación.", 1500);
+    // Le pedimos a la IA que explique la situación de las claves de inscripción
+    const respuestaIA = await consultarIA(
+        "El usuario pregunta por una clave de inscripción para un curso presencial. " +
+        "Explica que estas claves las entrega el personal encargado de la capacitación directamente. " +
+        "Dile que contacte a su responsable de curso. " +
+        "Menciona que para dudas técnicas escriba a siesabisoporte@imssbienestar.gob.mx. " +
+        "Sé amable, profesional y termina invitando a escribir MENU. Máximo 60 palabras.",
+        "Asistente de Capacitación SiESABI"
+    );
 
-    await sendDelayedReply(client, msg, "Te recomendamos que te pongas en contacto con la persona responsable para obtener más detalles.", 1500);
-    await sendDelayedReply(client, msg, "Si tiene alguna duda o necesita asistencia adicional, no dude en contactarnos al correo a " +
-        "siesabisoporte@imssbienestar.gob.mx Estamos aquí para ayudarle.", 1500);
+    // Enviamos la respuesta única generada por la IA
+    await sendDelayedReply(client, msg, respuestaIA, 1000);
 
-    await sendDelayedReply(client, msg, `Si quieres ver el menú escribe la palabra: *menu*`, 1500);
-    await sendDelayedReply(client, msg, `Agradecemos que utilices nuestro servicio.`, 1500);
-    await sendDelayedReply(client, msg, `Atentamente....`, 1500);
-    await sendDelayedReply(client, msg, `Tu equipo SiESABI 🤓`, 1500);
+    // Mensaje de cierre con el correo de soporte destacado
+    await sendDelayedReply(client, msg, "📧 *siesabisoporte@imssbienestar.gob.mx*\n¡Mucho éxito en tu capacitación! 🤓", 1500);
+
     return;
 }
 

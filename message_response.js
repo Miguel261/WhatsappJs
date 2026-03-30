@@ -3,16 +3,23 @@ const fs = require('fs');
 
 const sendDelayedReply = async (client, msg, text, delayMs = 0) => {
     try {
-        await new Promise(resolve => setTimeout(resolve, delayMs));
+        const chat = await msg.getChat();
 
-        if (msg.from === 'status@broadcast') {
-            console.log('Ignorando mensaje de broadcast');
-            return;
-        }
+        await chat.sendSeen();
+
+        const readingTime = Math.random() * 2000 + 1000;
+        await new Promise(resolve => setTimeout(resolve, readingTime));
+
+        await chat.sendStateTyping();
+
+        const typingTextDelay = Math.min(text.length * 50, 5000);
+        await new Promise(resolve => setTimeout(resolve, typingTextDelay + delayMs));
 
         await client.sendMessage(msg.from, text);
+
+        await chat.clearState();
     } catch (error) {
-        console.error('Error al enviar mensaje:', error);
+        console.error('Error al enviar mensaje humanizado:', error);
     }
 };
 

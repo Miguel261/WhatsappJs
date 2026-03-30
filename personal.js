@@ -1,38 +1,53 @@
 const { sendDelayedReply, sendDelayedImage } = require('./message_response');
+const { consultarIA } = require('./ia_service');
 const path = require('path');
 
 const Personal = async (client, msg) => {
+    // Definimos las rutas de las imágenes (esto es fijo)
     const imagePersonal = path.join(__dirname, 'images', 'datos_personales.png');
     const pestanaPersonal = path.join(__dirname, 'images', 'pestaña_personales.png');
 
-    await sendDelayedReply(client, msg, "🌟 *Actualización de Datos Personales* 🌟\n\nPara mantener tu información actualizada en nuestro sistema, " +
-        "por favor sigue esta guía paso a paso:", 1000);
+    // 1. Pedimos a la IA una introducción y los primeros 2 pasos
+    const introPasos = await consultarIA(
+        "El usuario quiere actualizar sus datos personales en SiESABI. " +
+        "Redacta una introducción breve y los primeros 2 pasos: " +
+        "1. Iniciar sesión. 2. Ir a sección Datos Personales y buscar el engrane ⚙️. " +
+        "Sé amable y usa emojis.",
+        "Guía SiESABI"
+    );
 
-    await sendDelayedReply(client, msg, "1️⃣ Accede a tu cuenta con tus credenciales actuales.", 1000);
+    // 2. Pedimos a la IA el texto para la primera imagen (Paso 3)
+    const captionImagen1 = await consultarIA(
+        "Genera una instrucción muy corta (máximo 15 palabras) que diga que deben hacer clic en el engrane ⚙️.",
+        "Instrucción Visual"
+    );
 
-    await sendDelayedReply(client, msg, "2️⃣ Una vez dentro, dirígete a la sección de 'Datos Personales' y localiza el icono de configuración ⚙️", 1000);
+    // 3. Pedimos a la IA el texto final y recomendaciones (Paso 4)
+    const finalGuia = await consultarIA(
+        "Explica que se abrirá una pestaña para cambiar correo, contraseña y datos. " +
+        "Recomienda mantener el celular actualizado para recuperar la cuenta. " +
+        "Termina invitando a escribir MENU si terminó. Máximo 50 palabras.",
+        "Guía SiESABI"
+    );
 
+    // --- Ejecución de envíos ---
+
+    // Envío de introducción y primeros pasos
+    await sendDelayedReply(client, msg, introPasos, 1000);
+
+    // Envío de primera imagen con su caption de la IA
     await sendDelayedImage(client, msg, {
         url: imagePersonal,
-        caption: '3️⃣ Haz clic en el icono de engrane ⚙️ para abrir las opciones de configuración'
-    }, 1000);
+        caption: `3️⃣ ${captionImagen1}`
+    }, 1200);
 
+    // Envío de segunda imagen con el cierre de la IA
     await sendDelayedImage(client, msg, {
         url: pestanaPersonal,
-        caption: '4️⃣ Se abrirá una nueva pestaña donde podrás:\n• Cambiar tu correo electrónico y actualizar tu contraseña\n• Modificar otros datos personales\n\n ' +
-        '*Haz clic en "Actualizar información personal"*\n\n💡 *Recomendación importante*:\n' +
-        'Mantén siempre actualizado tu número celular registrado\n.'+
-        'Esto te permitirá recuperar el acceso a tu cuenta en caso de olvidar tus credenciales.'
-    }, 1000);
-
-    await sendDelayedReply(client, msg, `Si quieres ver el menú escribe la palabra: *menu*`, 1500);
-    await sendDelayedReply(client, msg, `Agradecemos que utilices nuestro servicio.`, 1500);
-    await sendDelayedReply(client, msg, `Atentamente....`, 1500);
-    await sendDelayedReply(client, msg, `Tu equipo SiESABI 🤓`, 1500);
+        caption: `4️⃣ ${finalGuia}`
+    }, 1500);
 
     return;
 }
 
-module.exports = {
-    Personal
-};
+module.exports = { Personal };
