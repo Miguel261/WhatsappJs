@@ -85,7 +85,7 @@ const QuestionEmailFisrt = async (client, msg) => {
 
                     CONTENIDO DEL MENSAJE (MÁXIMO 20 PALABRAS):
                     - Indica el correo asociado.
-                    - Pregunta directamente: ¿Es correcto?.`,
+                    - Dile al usuario que verifique su correo detenidamente para ver si es correcto.`,
                     "### INFO: CONSULTA_EMAIL_LIMPIO"
                 );
                 await sendDelayedReply(client, msg, infoIA, 1000);
@@ -97,7 +97,7 @@ const QuestionEmailFisrt = async (client, msg) => {
     
                     INSTRUCCIÓN DE SALIDA:
                     1. Explica brevemente esta falta de coincidencia de números.
-                    2. Indica que para recuperar su acceso debe enviar un correo a **siesabisoporte@imssbienestar.gob.mx**.
+                    2. Indica que para recuperar su acceso debe enviar un correo a *siesabisoporte@imssbienestar.gob.mx*.
                     3. Menciona que incluya su NOMBRE, CURP y EMAIL con el asunto: "NO TENGO MIS DATOS DE ACCESO".
                     
                     REGLAS:
@@ -166,9 +166,18 @@ const QuestionEmail = async (client, msg) => {
 
     if (!userObject.flow || userObject.flow !== 'ask_email') {
         const pideEmailIA = await consultarIA(
-            "Pide al usuario su nueva dirección de correo. " +
-            "REGLA: Minúsculas, sin espacios. Emoji 📧. PROHIBIDO SALUDAR.",
-            "### FLUJO: CAPTURA_EMAIL"
+            `Pide al usuario que escriba su nueva dirección de correo electrónico. 
+
+            REGLAS DE FORMATO (ESTRICTAS):
+            1. PROHIBIDO usar negritas, asteriscos (*) o cualquier símbolo de formato. Solo texto plano.
+            2. PROHIBIDO SALUDAR. Ve directo a la solicitud.
+            3. Usa únicamente el emoji 📧 al inicio del mensaje.
+
+            CONTENIDO DEL MENSAJE (MÁXIMO 20 PALABRAS):
+            - Solicita el nuevo correo indicando que sea en minúsculas y sin espacios.
+            - INSTRUCCIÓN DE SALIDA: Indica que si se equivocó de opción, escriba la palabra CANCELAR.
+            - Sé dinámico: Varía la frase inicial (ej: Por favor escribe tu nuevo correo, Ingresa tu nuevo email, etc).`,
+            "### FLUJO: CAPTURA_EMAIL_DINAMICO"
         );
         await sendDelayedReply(client, msg, pideEmailIA, 1000);
         setUserContext(msg.from, { ...userObject, flow: 'ask_email', intentos: 0 });

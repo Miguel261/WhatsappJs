@@ -52,7 +52,7 @@ const welcome = async (client) => {
             return await sendDelayedReply(client, message, respuestaIA, 1000);
         }
 
-        if (textoUpper === "MENU") {
+        if (textoUpper === "MENU" || textoUpper === "MENÚ") {
             resetUserContext(userId);
             const contact = await message.getContact();
             const nombre = contact.pushname || "Usuario";
