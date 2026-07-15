@@ -9,9 +9,9 @@ const videoCourses = async (client, msg) => {
     const userObject = getUserContext(msg.from);
 
     const equipoEdicion = [
-        '5215545361921@c.us',
-        '5215539118813@c.us',
-        '5219871073725@c.us',
+        // '5215545361921@c.us',
+        // '5215539118813@c.us',
+        // '5219871073725@c.us',
         '5217443380646@c.us',
     ];
 

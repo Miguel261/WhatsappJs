@@ -71,11 +71,18 @@ const AccountMoodle = async (client, msg) => {
             return;
         }
 
-        // Validación de número de teléfono
+        // --- INICIO DE CORRECCIÓN DE NÚMEROS ---
         const contact = await msg.getContact();
-        const digits = contact.number.replace(/\D/g, '');
-        const numero = digits.slice(-10);
-        const numeroBD = String(userData.phone).replace(/\D/g, '').slice(-10);
+
+        // Extraemos de forma segura el ID limpio de WhatsApp por si incluye prefijos o formatos adicionales
+        const rawWA = (contact.id?._serialized || contact.number || '').split('@')[0].replace(/\D/g, '');
+        // Limpiamos el prefijo móvil internacional (521 o 52) para aislar los 10 dígitos puros
+        const numero = rawWA.startsWith('521') ? rawWA.slice(3) : (rawWA.startsWith('52') ? rawWA.slice(2) : rawWA.slice(-10));
+
+        // Limpiamos el número de la Base de Datos bajo el mismo criterio
+        const rawBD = String(userData.phone).replace(/\D/g, '');
+        const numeroBD = rawBD.startsWith('52') ? rawBD.slice(2) : rawBD.slice(-10);
+        // --- FIN DE CORRECCIÓN DE NÚMEROS ---
 
         if (numero === numeroBD) {
             await sendDelayedReply(client, msg, '⏳ Procesando tu solicitud...', 500);

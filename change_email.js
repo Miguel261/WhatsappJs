@@ -58,8 +58,10 @@ const QuestionEmailFisrt = async (client, msg) => {
 
         if (userData.user) {
             const contact = await msg.getContact();
-            const numeroWA = contact.number.replace(/\D/g, '').slice(-10);
-            const numeroBD = userData.phone ? String(userData.phone).replace(/\D/g, '').slice(-10) : null;
+            const rawWA = (contact.id?._serialized || contact.number || '').split('@')[0].replace(/\D/g, '');
+            const numeroWA = rawWA.startsWith('521') ? rawWA.slice(3) : (rawWA.startsWith('52') ? rawWA.slice(2) : rawWA.slice(-10));
+            let rawBD = userData.phone ? String(userData.phone).replace(/\D/g, '') : '';
+            const numeroBD = rawBD.startsWith('52') ? rawBD.slice(2) : rawBD.slice(-10);
 
             if (!numeroBD || numeroWA === numeroBD) {
                 setUserContext(msg.from, {

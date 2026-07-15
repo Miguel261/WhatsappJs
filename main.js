@@ -4,9 +4,14 @@ const cron = require('node-cron');
 const { resetAllUsersContext } = require('./users');
 const { consultarIA } = require('./ia_service');
 
+const puppeteer = require('puppeteer-extra');
+const StealthPlugin = require('puppeteer-extra-plugin-stealth');
+puppeteer.use(StealthPlugin());
+
 const client = new Client({
     authStrategy: new LocalAuth(),
     puppeteer: {
+        browserWSEndpoint: null,
         headless: true,
         executablePath: 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
         args: [
@@ -14,13 +19,12 @@ const client = new Client({
             '--disable-setuid-sandbox',
             '--disable-extensions',
             '--disable-dev-shm-usage',
-            '--disable-gpu'
+            '--disable-gpu',
+            // --- NUEVOS ARGUMENTOS DE CAMUFLAJE ---
+            '--disable-blink-features=AutomationControlled',
+            '--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
         ],
     },
-    // webVersionCache: {
-    //     type: 'remote',
-    //     remotePath: 'https://raw.githubusercontent.com/wppconnect-team/wa-version-utils/main/versions/2.3000.1018919747-alpha.json',
-    // }
 });
 
 client.on('auth_failure', msg => console.error('❌ Falla de autenticación:', msg));
@@ -47,67 +51,83 @@ client.on('call', async (call) => {
 client.on('ready', async () => {
     console.log('✅ Bot en línea y vinculado.');
 
-    // 1. ESPERA INICIAL DE SINCRONIZACIÓN (45s) - CRÍTICO PARA 200 CHATS
-    console.log('⏳ Sincronizando base de datos local (45s)...');
-    await new Promise(r => setTimeout(r, 45000));
+    // 1. ESPERA INICIAL PROLONGADA
+    console.log('⏳ Sincronizando base de datos local (60s)...');
+    await new Promise(r => setTimeout(r, 60000));
 
     try {
-        // 2. INYECCIÓN DE FUERZA BRUTA (WWebJS Internals)
-        // Esto obliga a WhatsApp a cargar TODOS los chats que tengan mensajes sin leer
-        // directamente desde el Store de JavaScript, saltándose el renderizado HTML.
-        console.log('🔍 Forzando carga profunda de Store para 200+ chats...');
+        console.log('🔍 Buscando mensajes pendientes...');
         const chats = await client.pupPage.evaluate(async () => {
-            // Obtenemos todos los chats que el Store conoce
-            const allChats = await window.WWebJS.getChats();
-            // Filtramos solo los que tienen mensajes sin leer (unreadCount > 0)
-            return allChats.filter(chat => chat.unreadCount > 0 && !chat.isGroup);
+            // Validamos que la API interna de WWebJS exista en la página antes de llamarla
+            if (!window.WWebJS) return [];
+            try {
+                const allChats = await window.WWebJS.getChats();
+                return allChats.filter(chat => chat.unreadCount > 0 && !chat.isGroup);
+            } catch (evalErr) {
+                console.error("Error evaluando chats en el navegador:", evalErr);
+                return [];
+            }
         });
 
-        // 3. PROCESAR CHATS DETECTADOS
-        // La IA usará estos IDs para enviar los mensajes.
-        console.log(`📊 Chats con actividad detectada: ${chats.length}`);
+        console.log(`📊 Total de chats por atender: ${chats.length}`);
 
-        if (chats.length === 0) {
-            console.log('📝 No se detectaron mensajes pendientes reales.');
-            return;
-        }
+        if (chats.length === 0) return;
 
         let i = 1;
         for (const chatData of chats) {
-            // Delay anti-ban estricto (Entre 6 y 12 segundos)
-            const delay = Math.floor(Math.random() * (12000 - 6000 + 1)) + 6000;
+            // Evitamos procesar si el ID de chat no es válido
+            if (!chatData || !chatData.id || !chatData.id._serialized) continue;
+
+            // --- LÓGICA DE FRAGMENTACIÓN (BATCHING) ---
+            if (i > 1 && (i - 1) % 5 === 0) {
+                const pausaLarga = Math.floor(Math.random() * (240000 - 120000 + 1)) + 120000;
+                console.log(`☕ Pausa de seguridad (Batch de 5 completo). Esperando ${Math.round(pausaLarga / 1000)}s...`);
+                await new Promise(r => setTimeout(r, pausaLarga));
+            }
+
+            // Delay entre mensajes individuales
+            const delay = Math.floor(Math.random() * (25000 - 15000 + 1)) + 15000;
             await new Promise(r => setTimeout(r, delay));
 
             try {
-                // Obtenemos el objeto Chat real usando el ID que sacamos del Store
-                const chat = await client.getChatById(chatData.id._serialized);
+                // ENVOLVEMOS getChatById EN SU PROPIO TRY/CATCH PARA EVITAR QUE ROMPA LA APLICACIÓN
+                const chat = await client.getChatById(chatData.id._serialized).catch(err => {
+                    console.error(`⚠️ No se pudo obtener el chat ${chatData.id._serialized}:`, err.message);
+                    return null;
+                });
+
+                if (!chat) continue; // Si falló al obtener el chat, pasamos al siguiente
+
                 const contact = await chat.getContact();
                 const nombre = contact.pushname || "Usuario";
 
                 // Usamos la IA para el saludo
                 const saludoIA = await consultarIA(
-                    `Saluda al usuario, notificale que no estabas en linea, se breve y amable, dile que el horario de atención es de 9 AM a 7 PM,
-                    ademas dile que eres un asistente automatico que le ayudara con los problemas que pueda tener con su cuenta de SiESABI,
-                    se creativo con esta notificación para que ninguna de las que respondas sea igual, no envies nigun menu, solo saluda y explica`,
+                    `Saluda a ${nombre}, avisa que ya estás en línea (horario 9am-7pm). ` +
+                    `Explica que eres el asistente de SiESABI. Sé breve y creativo. No envíes menús.`,
                     "Puesta al día"
                 );
 
+                // SIMULACIÓN DE ACTIVIDAD HUMANA
+                await chat.sendSeen();
+                await new Promise(r => setTimeout(r, 2000));
+
                 await chat.sendStateTyping();
 
-                const readingTime = Math.random() * 2000 + 1000;
-                await new Promise(resolve => setTimeout(resolve, readingTime));
+                const typingTime = (saludoIA.length * 70) + (Math.random() * 2000);
+                await new Promise(r => setTimeout(r, typingTime));
 
                 await chat.sendMessage(saludoIA);
-                await chat.sendSeen(); // Esto limpia la notificación
                 console.log(`[${i}/${chats.length}] ✅ Notificado: ${nombre}`);
+
                 i++;
             } catch (err) {
-                console.error(`❌ Error en chat ${chatData.id.user}:`, err.message);
+                console.error(`❌ Error procesando el chat individual ${chatData.id.user}:`, err.message);
             }
         }
         console.log('✨ Puesta al día finalizada.');
     } catch (err) {
-        console.error('💥 Error crítico en ready:', err);
+        console.error('💥 Error crítico general en proceso ready:', err);
     }
 });
 
